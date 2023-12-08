@@ -58,7 +58,7 @@ mpl.rcParams['font.size'] = font_size
 sys.path.append('../')
 from myFunctions import read_netcdfs
 from myFunctions import build_nn_eq
-from myFunctions import runNN
+from myFunctions import runNN_h
 from myFunctions import MinMaxNorm
 from myFunctions import MinMaxInverse
 
@@ -116,7 +116,7 @@ ndsLyr2 =0
 act_fnctn1 = 'tanh'
 act_fnctn2 = 0
 
-model,history_df,weights_dict = runNN(x, y,
+model,history_df,weights_dict = runNN_h(x, y,
                                alpha=lr,
                                iterations=itrtns,
                                shape_input=shp_inpt,
