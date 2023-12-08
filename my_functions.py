@@ -30,7 +30,7 @@ def read_netcdfs(files, dim):
 
     return combined
 
-def build_nn_eq(nds_num,inpt_num,inpt_list,act_func):
+def build_nn_eq(nds_num,inpt_num,inpt_list,act_func,model):
     '''
     Function to build the NN equation from the weight and
     biases outputs
@@ -40,52 +40,64 @@ def build_nn_eq(nds_num,inpt_num,inpt_list,act_func):
     formula_list = []
     frml_eqn = []
     y_str = []
+
     for ii in np.arange(len(model.layers)):
-         # get ith Keras layer's weights and biases
-         layer = model.layers[ii]
-         WB = layer.get_weights()
-
-         #WB[0].shape = (2,2)
-         # empty text string to which concatenate current layer formula parts
-         formula = ''
-         if ii==0:
-
-             for jj in np.arange(nds_num):
+        # get ith Keras layer's weights and biases
+        layer = model.layers[ii]
+        WB = layer.get_weights()
+    
+        #WB[0].shape = (2,2)
+        # empty text string to which concatenate current layer formula parts
+        formula = ''
+        if ii==0:
+    
+            for jj in np.arange(nds_num):
                 weights = []
-                all_terms = [ ]
-
+                all_terms = []
+    
                 for kk in np.arange(inpt_num):
                     cur_weight = WB[0][kk][jj]
                     cur_bias = WB[1][jj]
                     weights.append(cur_weight)
                     # build formula for this layer
-                    term = (str(np.round(weights[kk],2))+inpt_list[kk]+'+' )
+                    term = (str(np.round(weights[kk],2))+'*'+inpt_list[kk]+'+' )
                     all_terms.append(term)
-
+    
                 bias = str(np.round(cur_bias,2))
                 all_terms.append(bias)
-
+    
                 formula_list.append(all_terms)
-
-
-
+    
+    
+    
         elif ii == (len(model.layers)-1):
             for ll in np.arange(nds_num):
                 act_term = ''
                 for item in formula_list[ll]:
                     act_term += str(item)
-                y_str.append( str(np.round(WB[0][ll],2).squeeze()) + '('+ act_func+ '(' + act_term +'))+' )
-
+                y_str.append( str(np.round(WB[0][ll],2).squeeze()) + '*(np.'+ act_func+ '(' + act_term +'))+' )
+    
             y_str.append(str(np.round(WB[1][0],2).squeeze()) )
- equation = ' '
+    
+    equation = ''
     for item in y_str:
         equation += str(item)
-
+    
     # make some cleanings
     equation = equation.replace('+-','-')
     equation = equation.replace('+*0.0*','')
     equation = equation.replace('-*0.0*','')
-    equation = equation.replace('*','')
+    str_equation = equation.replace('*','')
+    str_equation = str_equation.replace('np.','')
+    
+    # saving nn equation in txt file
+    file_txt = "eq.txt"
+    # Open the file in write mode
+    file = open(file_txt, "w")
+    # Write the string to the file
+    file.write(str_equation)
+    # Close the file
+    file.close()
 
     return equation
 
