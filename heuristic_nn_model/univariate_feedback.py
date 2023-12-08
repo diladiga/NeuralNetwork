@@ -71,11 +71,12 @@ from myFunctions import MinMaxInverse
 ##### baseline profiles 
 
 '''Modify path if necessary'''
-bsln = xr.open_dataset('/storage/ddiaz/2023/thesis/rrtmg/output_files/2015-06-01T00_lat84_lon17-5/albPerturbation/toa_sfc/DD_2015-06-01T00_lat84_lon17-5_a06_t1_toa_sfc.nc').to_dataframe()
+#/storage/ddiaz/2023/thesis/rrtmg/output_files/2015-06-01T00_lat84_lon17-5/albPerturbation/toa_sfc
+bsln = xr.open_dataset('../data/DD_2015-06-01T00_lat84_lon17-5_a06_t1_toa_sfc.nc').to_dataframe()
 
 #####  perturbed albedo profile
-
-prtrbd = read_netcdfs('/storage/ddiaz/2023/thesis/rrtmg/output_files/2015-06-01T00_lat84_lon17-5/albPerturbation/toa_sfc/DD*_a*toa_sfc.nc', dim='time').to_dataframe()
+#/storage/ddiaz/2023/thesis/rrtmg/output_files/2015-06-01T00_lat84_lon17-5/albPerturbation/toa_sfc
+prtrbd = read_netcdfs('../data/DD*_a*toa_sfc.nc', dim='time').to_dataframe()
 prtrbd= prtrbd.reset_index(drop=True)
 
 ##### albedo
@@ -177,7 +178,8 @@ deltaRa=df.fnt_sw_toa.values-bsln.fnt_sw_toa.values #data.mean(axis=1).values-t.
 ### Kernel 
 
 ### import file
-path = '/storage/ddiaz/2023/thesis/kernels_han/'
+#/storage/ddiaz/2023/thesis/kernels_han/
+path = '../data/'
 fl_2012 = 'RRTM_kernel_2012_cld_alb_TOA_SFC_09.nc'
 fl_2013 = 'RRTM_kernel_2013_cld_alb_TOA_SFC_09.nc'
 fl_2015 = 'RRTM_kernel_2015_cld_alb_TOA_SFC_06.nc'
