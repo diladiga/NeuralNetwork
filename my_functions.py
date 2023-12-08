@@ -117,8 +117,8 @@ def MinMaxInverse(n,a,b,df_tsr):
     x = (n-a)*(max_val-min_val)/(b-a)+min_val
     return x
 
-#####  Function to train the NN
-def runNN(x_values,y_real,alpha, iterations,shape_input,nodesLayer1, nodesLayer2, act_function1, act_function2, patienceEpochs ,dpii=80):
+#####  Function to train the NN (Heuristic case)
+def runNN_h(x_values,y_real,alpha, iterations,shape_input,nodesLayer1, nodesLayer2, act_function1, act_function2, patienceEpochs ,dpii=80):
 
     start_time = time.time()
 
@@ -182,4 +182,81 @@ def runNN(x_values,y_real,alpha, iterations,shape_input,nodesLayer1, nodesLayer2
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
+    return(model,history_df,weights_dict)
+
+#####  Function to train the NN (Global case)
+def runNN(x_values,y_real,alpha, iterations,shape_input,nodesLayer1, nodesLayer2, act_function1, act_function2, 
+          earlyStopping, patienceEpochs, loss_thr ,dpii=300):
+    
+    start_time = time.time()
+    
+    # defining the tensors for the NN
+    x=tf.constant(x_values) #albedo
+    y=tf.constant(y_real) # prtrbd.fnt_sw_toa.to_numpy()
+    
+    # define the model
+    model = tf.keras.Sequential(name='Sequential_NN')
+    
+    if nodesLayer2 == 0:
+        layer1 = Dense(nodesLayer1,activation=act_function1 ,input_shape=[shape_input], name='hiddenLayer1') #11 relu
+        output = Dense(1, name='output')
+
+        model.add(layer1)
+        model.add(output)
+    
+    else:
+        layer1 = Dense(nodesLayer1,activation=act_function1 ,input_shape=[shape_input], name='hiddenLayer1') #11 relu
+        layer2 = Dense(nodesLayer2,activation=act_function2, name='hiddenLayer2')
+        output = Dense(1, name='output')
+
+        model.add(layer1)
+        model.add(layer2)
+        model.add(output)
+
+    # compile the model
+    model.compile(loss='mse',
+                  optimizer= tf.keras.optimizers.Adam(learning_rate=alpha), 
+                  metrics=[tf.keras.metrics.RootMeanSquaredError()]) #'accuracy'
+
+    # display the model
+    model.summary()
+    ann_viz(model, filename='figure_NN', title="Neural network")
+    
+    # save hyperparameters
+    weights_dict = {}
+
+    weight_callback = tf.keras.callbacks.LambdaCallback \
+    ( on_epoch_end=lambda epoch, logs: weights_dict.update({epoch:model.get_weights()}))
+    
+    if earlyStopping==0:
+        # fit the model
+        history = model.fit( x, y, epochs=iterations, callbacks=[weight_callback],verbose=True)
+    
+    if earlyStopping== 1:
+        #adding a callback to stop training 
+        #es = EarlyStoppingByLossVal(monitor='loss', value=loss_thr, verbose=True)
+        es = tf.keras.callbacks.EarlyStopping(monitor='loss', verbose=1, mode='min', 
+                                             patience=patienceEpochs)#min_delta=0.00001, start_from_epoch=10)
+        # NEED TO CHECK THIS
+        #es = tf.keras.callbacks.EarlyStopping(monitor='loss', verbose=1, mode='min', 
+                                              #baseline=loss_thr, min_delta=0.000001, patience=patienceEpochs)#min_delta=0.00001, start_from_epoch=10)
+
+        # fit the model
+        history = model.fit( x, y, epochs=iterations, callbacks=[weight_callback,es],verbose=2)
+        #print(history.history)
+    
+    # get the learning rate value of the model
+    lr= K.eval(model.optimizer.lr)
+
+    # plot cost function
+    plt.figure(figsize=(8,6),dpi=dpii)
+    history_df = pd.DataFrame(history.history)
+    plt.plot(history_df['loss'], label='cost')
+    plt.yscale('log')
+    plt.title('Training cost function with learning rate = '+ str(lr))
+    plt.legend()
+    plt.savefig('costFunction.png')
+    
+    print("--- %s seconds ---" % (time.time() - start_time))
+    
     return(model,history_df,weights_dict)
