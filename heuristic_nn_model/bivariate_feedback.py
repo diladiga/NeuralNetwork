@@ -82,11 +82,12 @@ from matplotlib import cm
 ##### baseline profiles 
 
 '''Modify path if necessary'''
-bsln = xr.open_dataset('/storage/ddiaz/2022/myProject/august/rrtmg/01062016_prtrbd_a_cc/01062016_toa_sfc.nc').to_dataframe()
+#/storage/ddiaz/2022/myProject/august/rrtmg/01062016_prtrbd_a_cc/
+bsln = xr.open_dataset('.../data/01062016_toa_sfc.nc').to_dataframe()
 
 #####  perturbed albedo profile
-
-prtrbd = read_netcdfs('/storage/ddiaz/2023/thesis/rrtmg/output_files/2015-06-01T00_lat84_lon17-5/alb_cc_Perturbation/toa_sfc/DD*_a*toa_sfc.nc', dim='time').to_dataframe()
+#/storage/ddiaz/2023/thesis/rrtmg/output_files/2015-06-01T00_lat84_lon17-5/alb_cc_Perturbation/toa_sfc
+prtrbd = read_netcdfs('../data/DD*_a*toa_sfc.nc', dim='time').to_dataframe()
 prtrbd = prtrbd.reset_index(drop=True)
 
 #### Join datasets
