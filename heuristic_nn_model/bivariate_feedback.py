@@ -64,7 +64,7 @@ sys.path.append('../')
 
 from myFunctions import read_netcdfs
 from myFunctions import build_nn_eq
-from myFunctions import runNN
+from myFunctions import runNN_h
 from myFunctions import MinMaxNorm
 from myFunctions import MinMaxInverse
 
@@ -150,7 +150,7 @@ act_fnctn1 = 'tanh'
 act_fnctn2 = 0
 ptnce = 100
 
-model,history_df,weights_dict = runNN(xx, yy,
+model,history_df,weights_dict = runNN_h(xx, yy,
                                     alpha=lr,
                                     iterations=itrtns,
                                     shape_input=shp_inpt,
