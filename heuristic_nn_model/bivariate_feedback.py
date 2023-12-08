@@ -18,7 +18,6 @@ import xarray as xr
 import h5py
 
 # plots
-%matplotlib inline
 import matplotlib.pyplot as plt
 import seaborn as sns
 plt.style.use('seaborn-whitegrid')
